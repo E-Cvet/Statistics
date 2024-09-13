@@ -1,0 +1,916 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "e2d15158",
+   "metadata": {},
+   "source": [
+    "# Week 5"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "id": "1ea125d3",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Loading the libraries\n",
+    "import numpy as np\n",
+    "import pandas as pd\n",
+    "import matplotlib.pyplot as plt\n",
+    "from matplotlib_venn import venn2, venn3, venn2_circles, venn3_circles\n",
+    "import scipy.stats as stats\n",
+    "import random\n",
+    "\n",
+    "# Loading the libraries\n",
+    "import numpy as np\n",
+    "import sympy as sp\n",
+    "import pandas as pd\n",
+    "import matplotlib.pyplot as plt\n",
+    "import seaborn as sns\n",
+    "import scipy.stats as stats\n",
+    "import random"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "510b45bd",
+   "metadata": {},
+   "source": [
+    "## Week 4 Day 3: Intro to Probability (2)\n",
+    "### Bayes' Theorem\n",
+    "* The Bayes' Theorem is a result in probability theory which relates the conditinal probabilities of two events, $A$ and $B$. It is a simple and powerful tool that allows us to *reverse the conditioning* in a conditional probability calculations. In short, it says that the relation between $P(A \\mid B)$ and $P(B \\mid A)$ is given by\n",
+    "\\begin{equation} P(A \\mid B) = \\frac{P(B \\mid A) \\cdot P(A)}{P(B)} \\end{equation}\n",
+    "This result extends beyond simple probabilities and is heavily exploited in classification methods in machine learning (and not just there)\n",
+    "\n",
+    "We will demonstrate its application on through examples.\n",
+    "\n",
+    "### Example 1\n",
+    "* It is estimated that 4% of people who spend time in the woods will get Lyme disease. Of people with Lyme disease, the test to determine if you have it is will give a positive reading 97% of the time. Of people who do not have Lyme disease, the same test will give a negative rating 92% of the time. Find the probability that a **person really has Lyme disease, given that they test positive**."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 66,
+   "id": "75b57391",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "P(L) = 0.0397\n",
+      "P(L') = 0.9603\n",
+      "P(+ | L) = 0.0385\n",
+      "P(- | L) = 0.0012\n",
+      "P(+) = 0.1155\n",
+      "---\n",
+      "P(L | +) = ( P(+ | L) * P(L) ) / P(+) = 0.013233333333333333\n"
+     ]
+    }
+   ],
+   "source": [
+    "# Number of simulations:\n",
+    "n = 10000\n",
+    "\n",
+    "# Initialize variables:\n",
+    "hasLyme, noLyme = 0, 0\n",
+    "\n",
+    "hasLymeAndPositive, hasLymeAndNegative = 0, 0\n",
+    "\n",
+    "positiveTest = 0\n",
+    "\n",
+    "# Simulations:\n",
+    "for i in range(n):\n",
+    "    prob = np.random.random()\n",
+    "    test = np.random.random()\n",
+    "    \n",
+    "    if prob <= 0.04:\n",
+    "        # has Lyme\n",
+    "        hasLyme += 1\n",
+    "        \n",
+    "        if test <= 0.03:\n",
+    "            # has negative test result and lymes\n",
+    "            hasLymeAndNegative += 1\n",
+    "        else:\n",
+    "            # has positive test result and lymes\n",
+    "            hasLymeAndPositive += 1\n",
+    "            \n",
+    "            positiveTest += 1\n",
+    "            \n",
+    "    else:\n",
+    "        # does not have Lyme\n",
+    "        noLyme += 1\n",
+    "        \n",
+    "        if test <= 0.08:\n",
+    "            positiveTest += 1\n",
+    "\n",
+    "\n",
+    "print(f\"P(L) = {hasLyme / n}\")\n",
+    "print(f\"P(L') = {noLyme / n}\")\n",
+    "print(f\"P(+ | L) = {hasLymeAndPositive / n}\")\n",
+    "print(f\"P(- | L) = {hasLymeAndNegative / n}\")\n",
+    "print(f\"P(+) = {positiveTest / n}\")\n",
+    "print('---')\n",
+    "print(f\"P(L | +) = ( P(+ | L) * P(L) ) / P(+) = {((hasLymeAndPositive / n) * (hasLyme / n)) / (positiveTest / n)}\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 67,
+   "id": "7975eb94",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "P(L) = 0.0424\n",
+      "P(L') = 0.0\n",
+      "P(+ | L) = 0.0412\n",
+      "P(- | L) = 0.0\n",
+      "P(+) = 0.1182\n",
+      "---\n",
+      "P(L | +) = ( P(+ | L) * P(L) ) / P(+) = 0.014779018612521152\n"
+     ]
+    }
+   ],
+   "source": [
+    "# Number of simulations:\n",
+    "n = 10000\n",
+    "\n",
+    "# Initialize variables:\n",
+    "hasLyme, noLyme = 0, 0\n",
+    "\n",
+    "hasLymeAndPositive, hasLymeAndNegative = 0, 0\n",
+    "\n",
+    "positiveTest = 0\n",
+    "\n",
+    "# Simulations:\n",
+    "for i in range(n):\n",
+    "    prob = np.random.random()\n",
+    "    test = np.random.random()\n",
+    "    \n",
+    "    if prob <= 0.04:\n",
+    "        # has Lyme\n",
+    "        hasLyme += 1\n",
+    "        \n",
+    "        if test <= 0.97:\n",
+    "            hasLymeAndPositive += 1\n",
+    "            \n",
+    "            positiveTest += 1\n",
+    "            \n",
+    "    else:\n",
+    "        if test <= 0.08: positiveTest += 1\n",
+    "\n",
+    "\n",
+    "print(f\"P(L) = {hasLyme / n}\")\n",
+    "print(f\"P(L') = {noLyme / n}\")\n",
+    "print(f\"P(+ | L) = {hasLymeAndPositive / n}\")\n",
+    "print(f\"P(- | L) = {hasLymeAndNegative / n}\")\n",
+    "print(f\"P(+) = {positiveTest / n}\")\n",
+    "print('---')\n",
+    "print(f\"P(L | +) = ( P(+ | L) * P(L) ) / P(+) = {((hasLymeAndPositive / n) * (hasLyme / n)) / (positiveTest / n)}\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "a2f71efc",
+   "metadata": {},
+   "source": [
+    "### Example 2\n",
+    "Tom has three ways of getting to work. 30% of the time he travels by car, 20% of the time he rides his bicycle and 50% of the time he walks.\n",
+    "\n",
+    "* When travelling by car, Tom is late 5% of the time.\n",
+    "* When riding his bicycle he is late 10% of the time.\n",
+    "* When walking he is late 25% of the time.\n",
+    "\n",
+    "Given that he was on time one day, find the probability that he got to work riding his bicycle."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 73,
+   "id": "85d64cd7",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "P(B) = 0.2054\n",
+      "P(C) = 0.3076\n",
+      "P(W) = 0.487\n",
+      "---\n",
+      "P(L') = 0.8448\n",
+      "P(B and L') = 0.1838\n",
+      "---\n",
+      "P(B | L') = P(B and L') / P(L') = 0.21756628787878787\n"
+     ]
+    }
+   ],
+   "source": [
+    "# Number of simulations:\n",
+    "n = 5000\n",
+    "\n",
+    "# Initialize variables:\n",
+    "b, c, w = 0, 0, 0\n",
+    "\n",
+    "notLate = 0\n",
+    "\n",
+    "BicycleAndNotLate = 0\n",
+    "\n",
+    "# Simulations:\n",
+    "for i in range(n):\n",
+    "    transport = np.random.random()\n",
+    "    late = np.random.random()\n",
+    "    \n",
+    "    if transport <= 0.2:\n",
+    "        # Bicycle:\n",
+    "        b += 1\n",
+    "        \n",
+    "        # Not Late:\n",
+    "        if late <= 0.9:\n",
+    "            # Bicycle and Not Late:\n",
+    "            BicycleAndNotLate += 1\n",
+    "            notLate += 1\n",
+    "    \n",
+    "    elif 0.2 < transport <= 0.5:\n",
+    "        # Car:\n",
+    "        c += 1\n",
+    "        \n",
+    "        if late <= 0.95:\n",
+    "            # Car and Not Late\n",
+    "            notLate += 1\n",
+    "        \n",
+    "    else:\n",
+    "        # Walk:\n",
+    "        w += 1\n",
+    "        \n",
+    "        if late <= 0.75:\n",
+    "            # Walk and Not Late:\n",
+    "            notLate += 1\n",
+    "\n",
+    "P_B = b / n\n",
+    "P_C = c / n\n",
+    "P_W = w / n\n",
+    "\n",
+    "P_notLate = notLate / n\n",
+    "P_BicycleAndNotLate = BicycleAndNotLate / n\n",
+    "\n",
+    "print(f\"P(B) = {P_B}\")\n",
+    "print(f\"P(C) = {P_C}\")\n",
+    "print(f\"P(W) = {P_W}\")\n",
+    "print(\"---\")\n",
+    "print(f\"P(L') = {P_notLate}\")\n",
+    "print(f\"P(B and L') = {P_BicycleAndNotLate}\")\n",
+    "print(\"---\")\n",
+    "print(f\"P(B | L') = P(B and L') / P(L') = {P_BicycleAndNotLate / P_notLate}\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "05d20857",
+   "metadata": {},
+   "source": [
+    "---"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "f486625a",
+   "metadata": {},
+   "source": [
+    "## Week 5 Day 1: Random Variables & Probability Distributions\n",
+    "\n",
+    "* Let us toss a fair coin. Two outcomes are possible: **H** or **T**. Let us introduce a variable $X$ that will count the number of **H** when tossing.\n",
+    "* $X \\in \\{0, 1\\}$ -- there are two possible values for $X$:\n",
+    "    * $X = 0$ means that **H** has not occurred\n",
+    "    * $X = 1$ means that **H** has occurred\n",
+    "\n",
+    "We can summarize the outcomes in a table or on a bar graph"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 74,
+   "id": "c853612d",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>0</th>\n",
+       "      <th>1</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>P(X=x)</th>\n",
+       "      <td>0.5</td>\n",
+       "      <td>0.5</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "          0    1\n",
+       "P(X=x)  0.5  0.5"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "image/png": "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\n",
+      "text/plain": [
+       "<Figure size 400x300 with 1 Axes>"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "table = pd.DataFrame(columns = ['0', '1'],\n",
+    "                     index = ['P(X=x)'])\n",
+    "\n",
+    "table.loc['P(X=x)'] = [0.5, 0.5]\n",
+    "\n",
+    "display(table)\n",
+    "\n",
+    "plt.figure(figsize=(4, 3))\n",
+    "plt.bar(x = ['0', '1'], height = [0.5, 0.5])\n",
+    "plt.title('P(X = x)')\n",
+    "plt.xlabel('# of heads in 1 toss')\n",
+    "plt.ylabel('probability')\n",
+    "plt.show()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "13d6138a",
+   "metadata": {},
+   "source": [
+    "---\n",
+    "\n",
+    "# Continuation (Day 2 / Part 2)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "10fb0583",
+   "metadata": {},
+   "source": [
+    "### Example\n",
+    "As the head of inventory for Knowway Computer Company, you were thrilled that you had managed to ship 2 computers to your biggest client the day the order arrived. You are horrified, though, to find out that someone had restocked refurbished computers in with the new computers in your storeroom. The shipped computers were selected randomly from the 15 computers in stock, but 4 of those were actually refurbished.\n",
+    "* If your client gets 2 new computers, things are fine.\n",
+    "* If the client gets one refurbished computer, it will be sent back at your expense \\$100 and you can replace it.\n",
+    "* However, if both computers are refurbished, the client will cancel the order this month and you’ll lose a total of \\$1000.\n",
+    "\n",
+    "If $L$ is the random variable \"amount of money you lose\", then give the possible values for $L$ and find their probabilities."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 25,
+   "id": "750098a3",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def choose_computers(n=2):\n",
+    "    c, computers = [], [*range(1, 16)]\n",
+    "\n",
+    "    for i in range(n):\n",
+    "\n",
+    "        comp = random.choice(computers)\n",
+    "\n",
+    "        computers.remove(comp)\n",
+    "\n",
+    "        c.append(comp)\n",
+    "\n",
+    "    return c"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 12,
+   "id": "9a0c6fb0",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "(9, 11, [1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 13, 14, 15])"
+      ]
+     },
+     "execution_count": 12,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "computers = [*range(1, 16)]\n",
+    "\n",
+    "computer_1 = random.choice(computers)\n",
+    "\n",
+    "computers.remove(computer_1)\n",
+    "\n",
+    "computer_2 = random.choice(computers)\n",
+    "\n",
+    "computers.remove(computer_2)\n",
+    "\n",
+    "computer_1, computer_2, computers"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 77,
+   "id": "b75bb17f",
+   "metadata": {
+    "scrolled": false
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "L = [0.5308 0.4068 0.0624]\n"
+     ]
+    },
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>0</th>\n",
+       "      <th>100</th>\n",
+       "      <th>1000</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>L</th>\n",
+       "      <td>0.5308</td>\n",
+       "      <td>0.4068</td>\n",
+       "      <td>0.0624</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "     0       100     1000\n",
+       "L  0.5308  0.4068  0.0624"
+      ]
+     },
+     "execution_count": 77,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "n = 5000\n",
+    "\n",
+    "L = np.array([0, 0, 0])\n",
+    "\n",
+    "for i in range(n):\n",
+    "    computer1, computer2 = choose_computers()\n",
+    "    \n",
+    "    R = 0\n",
+    "    \n",
+    "    if computer1 <= 4:\n",
+    "        R += 1\n",
+    "\n",
+    "    if computer2 <= 4:\n",
+    "        R += 1\n",
+    "    \n",
+    "    # R = 2 (we have 2 refurbished computers L = 1000):\n",
+    "    # R = 1 (we have 1 refurbished and 1 new computer L = 100):\n",
+    "    # R = 0 (we have 2 new computers L = 0):\n",
+    "    L[R] += 1\n",
+    "\n",
+    "L = L / n\n",
+    "\n",
+    "df_L = pd.DataFrame([], columns=[0, 100, 1000], index=['L'])\n",
+    "\n",
+    "print(f\"L = {L}\")\n",
+    "\n",
+    "df_L[0] = [L[0]]\n",
+    "df_L[100] = [L[1]]\n",
+    "df_L[1000] = [L[2]]\n",
+    "\n",
+    "df_L"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d08a643f",
+   "metadata": {},
+   "source": [
+    "---"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "636558d5",
+   "metadata": {},
+   "source": [
+    "### Types of random variables\n",
+    "* There are two types of random variables: **discrete** and **continuous**\n",
+    "* If the outcomes are “listable” (finite or infinitely many of them), then the random variable is **discrete**.\n",
+    "* They can be summarized in tables and bar graphs\n",
+    "* For a random variable $X$ with outcomes $x_1, x_2, \\ldots, x_n$ we label $p_i = P(X = x_i)$.\n",
+    "* The sum of the probabilities: $p_1 + p_2 + \\ldots + p_n = 1$ \n",
+    "* The function that assigns probabilities to the values of a discrete random variable is called **probability mass function (pmf)**\n",
+    "\n",
+    "\n",
+    "### Expected Value, Variance and Standard Deviation\n",
+    "* For a random variable we can define \"mean\" which we call **expected value**, or **expectation**, and label by $E(X)$. In similar analogy with descriptive statistics, we can define **variance** $Var(X)$ and **standard deviation** $\\sigma_X$. They are given by\n",
+    "\n",
+    "\\begin{equation}\n",
+    "\\begin{array}{rcl}\n",
+    "E(X) &=& \\displaystyle\\sum_{i=1}^{n} x_i \\cdot P(X=x_i)\\\\\n",
+    "Var(X) &=& \\displaystyle\\sum_{i=1}^{n} \\Big(x_i - E(X) \\Big)^2 \\cdot P(X=x_i)\\\\\n",
+    "\\sigma_X &=& \\sqrt{Var(X)}\n",
+    "\\end{array}\n",
+    "\\end{equation}\n",
+    "\n",
+    "\n",
+    "### Example 3\n",
+    "Calculate the $E(L)$, $Var(L)$ and $\\sigma_L$ for the random variable $L$ in **Example 2**"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 81,
+   "id": "03c2112d",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "mean = 4.6\n",
+      "sigma = 3.3823069050575527\n",
+      "median = 3.0\n"
+     ]
+    }
+   ],
+   "source": [
+    "x = np.array([1, 2, 3, 7, 10])\n",
+    "\n",
+    "\n",
+    "print(f\"mean = {x.mean()}\")\n",
+    "print(f\"sigma = {x.std()}\")\n",
+    "print(f\"median = {np.median(x)}\")\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c873309e",
+   "metadata": {},
+   "source": [
+    "### Example \n",
+    "\n",
+    "Calculate the $E(X)$, $Var(X)$ and $\\sigma_X$ for the random variable $X$. The random variable $X$ models throwing dice with certain probabilities."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 112,
+   "id": "1f0926a3",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "mean = 3.5194\n",
+      "freq = [0.1672 0.1662 0.1642 0.16   0.1672 0.1752]\n"
+     ]
+    },
+    {
+     "data": {
+      "image/png": "iVBORw0KGgoAAAANSUhEUgAAAXIAAADFCAYAAABJnHlwAAAAOXRFWHRTb2Z0d2FyZQBNYXRwbG90bGliIHZlcnNpb24zLjcuMCwgaHR0cHM6Ly9tYXRwbG90bGliLm9yZy88F64QAAAACXBIWXMAAA9hAAAPYQGoP6dpAAATdUlEQVR4nO3df0zU9+HH8dfJj2N1wFZQfgREujmBsTJ62AKWmsyVxv5Il7WTpSmaTdMQjBRJkxbZ4mqW4ZIW0VYxtHbEP/yxjbK6fO3wllR003aFck1TzeaiDmIhFLeK+o3npO/vH6b37fUO5HO6nW94PpJPwr3v/fnc65PoK28+n+POZYwxAgBYa1a0AwAAbgxFDgCWo8gBwHIUOQBYjiIHAMtR5ABgOYocACwXG+0AN8unn36qjz76SImJiXK5XNGOAwA3zBijCxcuKDMzU7NmTbzunjZF/tFHHyk7OzvaMQDgphscHFRWVtaEz0+bIk9MTJR07YSTkpKinAYAbtzY2Jiys7MD/TaRaVPkn11OSUpKosgBTCvXu1zMzU4AsBxFDgCWo8gBwHIUOQBYjiIHAMtNm3etAMD85/4n2hEmdGbTQ/+xY7MiBwDLUeQAYDmKHAAsR5EDgOUocgCwHO9a0cy90w18Hv8P7EWRTwP8BwRmNi6tAIDlWJHjlsBvFUDkWJEDgOUocgCwHJdWgJvkVr08xKWh6Y8VOQBYjiIHAMtR5ABgOYocACwXUZFv375dubm5SkhIkMfj0ZEjRyacOzQ0pCeeeEILFy7UrFmzVF9fHzKno6NDLpcrZLt8+XIk8QBgRnFc5Pv27VN9fb2amprU39+viooKLVu2TAMDA2Hn+/1+zZkzR01NTSoqKprwuElJSRoaGgraEhISnMYDgBnHcZG3tLRo1apVWr16tfLz89Xa2qrs7Gy1tbWFnT9//nxt2bJFK1asUHJy8oTHdblcSk9PD9oAANfnqMivXLmivr4+VVZWBo1XVlbq6NGjNxTk4sWLysnJUVZWlh5++GH19/dPOt/v92tsbCxoA4CZyFGRj46Oanx8XGlpaUHjaWlpGh4ejjhEXl6eOjo6tH//fu3Zs0cJCQlavHixTp48OeE+zc3NSk5ODmzZ2dkRvz4A2Cyim50ulyvosTEmZMyJ0tJSPfnkkyoqKlJFRYV+/etf6xvf+IZeeumlCfdpbGzU+fPnA9vg4GDErw8ANnP0J/qpqamKiYkJWX2PjIyErNJvxKxZs7Ro0aJJV+Rut1tut/umvSYA2MrRijw+Pl4ej0derzdo3Ov1qry8/KaFMsbI5/MpIyPjph0TAKYrxx+a1dDQoOrqapWUlKisrEzt7e0aGBhQTU2NpGuXPM6ePatdu3YF9vH5fJKu3dD8+OOP5fP5FB8fr4KCAknS888/r9LSUi1YsEBjY2PaunWrfD6ftm3bdhNOEQCmN8dFXlVVpXPnzmnjxo0aGhpSYWGhDhw4oJycHEnX/gDoi+8pLy4uDvzc19en3bt3KycnR2fOnJEkffLJJ3rqqac0PDys5ORkFRcX6/Dhw7r77rtv4NQAYGaI6GNsa2trVVtbG/a5jo6OkDFjzKTH27x5szZv3hxJFACY8fisFQCwHEUOAJajyAHAchQ5AFiOIgcAy1HkAGA5ihwALEeRA4DlKHIAsBxFDgCWo8gBwHIUOQBYjiIHAMtR5ABgOYocACxHkQOA5ShyALAcRQ4AlqPIAcByFDkAWI4iBwDLUeQAYDmKHAAsR5EDgOUocgCwHEUOAJajyAHAchQ5AFiOIgcAy1HkAGA5ihwALBdRkW/fvl25ublKSEiQx+PRkSNHJpw7NDSkJ554QgsXLtSsWbNUX18fdl5nZ6cKCgrkdrtVUFCgrq6uSKIBwIzjuMj37dun+vp6NTU1qb+/XxUVFVq2bJkGBgbCzvf7/ZozZ46amppUVFQUds6xY8dUVVWl6upqvf/++6qurtby5cv1zjvvOI0HADOO4yJvaWnRqlWrtHr1auXn56u1tVXZ2dlqa2sLO3/+/PnasmWLVqxYoeTk5LBzWltbdf/996uxsVF5eXlqbGzU0qVL1dra6jQeAMw4jor8ypUr6uvrU2VlZdB4ZWWljh49GnGIY8eOhRzzgQcemPSYfr9fY2NjQRsAzESOinx0dFTj4+NKS0sLGk9LS9Pw8HDEIYaHhx0fs7m5WcnJyYEtOzs74tcHAJtFdLPT5XIFPTbGhIz9p4/Z2Nio8+fPB7bBwcEben0AsFWsk8mpqamKiYkJWSmPjIyErKidSE9Pd3xMt9stt9sd8WsCwHThaEUeHx8vj8cjr9cbNO71elVeXh5xiLKyspBjHjx48IaOCQAzhaMVuSQ1NDSourpaJSUlKisrU3t7uwYGBlRTUyPp2iWPs2fPateuXYF9fD6fJOnixYv6+OOP5fP5FB8fr4KCAknS008/rfvuu0+//OUv9eijj+qNN97QH//4R/3pT3+6CacIANOb4yKvqqrSuXPntHHjRg0NDamwsFAHDhxQTk6OpGt/APTF95QXFxcHfu7r69Pu3buVk5OjM2fOSJLKy8u1d+9e/eQnP9FPf/pTfe1rX9O+fft0zz333MCpAcDM4LjIJam2tla1tbVhn+vo6AgZM8Zc95iPP/64Hn/88UjiAMCMxmetAIDlKHIAsBxFDgCWo8gBwHIUOQBYjiIHAMtR5ABgOYocACxHkQOA5ShyALAcRQ4AlqPIAcByFDkAWI4iBwDLUeQAYDmKHAAsR5EDgOUocgCwHEUOAJajyAHAchQ5AFiOIgcAy1HkAGA5ihwALEeRA4DlKHIAsBxFDgCWo8gBwHIUOQBYjiIHAMtR5ABguYiKfPv27crNzVVCQoI8Ho+OHDky6fyenh55PB4lJCTojjvu0I4dO4Ke7+jokMvlCtkuX74cSTwAmFEcF/m+fftUX1+vpqYm9ff3q6KiQsuWLdPAwEDY+adPn9aDDz6oiooK9ff3a/369aqrq1NnZ2fQvKSkJA0NDQVtCQkJkZ0VAMwgsU53aGlp0apVq7R69WpJUmtrq7q7u9XW1qbm5uaQ+Tt27NC8efPU2toqScrPz1dvb69eeOEFPfbYY4F5LpdL6enpU87h9/vl9/sDj8fGxpyeCgBMC45W5FeuXFFfX58qKyuDxisrK3X06NGw+xw7dixk/gMPPKDe3l79+9//DoxdvHhROTk5ysrK0sMPP6z+/v5JszQ3Nys5OTmwZWdnOzkVAJg2HBX56OioxsfHlZaWFjSelpam4eHhsPsMDw+HnX/16lWNjo5KkvLy8tTR0aH9+/drz549SkhI0OLFi3Xy5MkJszQ2Nur8+fOBbXBw0MmpAMC04fjSinTtMsjnGWNCxq43//PjpaWlKi0tDTy/ePFi3XXXXXrppZe0devWsMd0u91yu92RxAeAacXRijw1NVUxMTEhq++RkZGQVfdn0tPTw86PjY1VSkpK+FCzZmnRokWTrsgBANc4KvL4+Hh5PB55vd6gca/Xq/Ly8rD7lJWVhcw/ePCgSkpKFBcXF3YfY4x8Pp8yMjKcxAOAGcnx2w8bGhr06quv6rXXXtOJEye0bt06DQwMqKamRtK1a9crVqwIzK+pqdE//vEPNTQ06MSJE3rttde0c+dOPfPMM4E5zz//vLq7u3Xq1Cn5fD6tWrVKPp8vcEwAwMQcXyOvqqrSuXPntHHjRg0NDamwsFAHDhxQTk6OJGloaCjoPeW5ubk6cOCA1q1bp23btikzM1Nbt24NeuvhJ598oqeeekrDw8NKTk5WcXGxDh8+rLvvvvsmnCIATG8R3eysra1VbW1t2Oc6OjpCxpYsWaL33ntvwuNt3rxZmzdvjiQKAMx4fNYKAFiOIgcAy1HkAGA5ihwALEeRA4DlKHIAsBxFDgCWo8gBwHIUOQBYjiIHAMtR5ABgOYocACxHkQOA5ShyALAcRQ4AlqPIAcByFDkAWI4iBwDLUeQAYDmKHAAsR5EDgOUocgCwHEUOAJajyAHAchQ5AFiOIgcAy1HkAGA5ihwALEeRA4DlKHIAsBxFDgCWi6jIt2/frtzcXCUkJMjj8ejIkSOTzu/p6ZHH41FCQoLuuOMO7dixI2ROZ2enCgoK5Ha7VVBQoK6urkiiAcCM47jI9+3bp/r6ejU1Nam/v18VFRVatmyZBgYGws4/ffq0HnzwQVVUVKi/v1/r169XXV2dOjs7A3OOHTumqqoqVVdX6/3331d1dbWWL1+ud955J/IzA4AZItbpDi0tLVq1apVWr14tSWptbVV3d7fa2trU3NwcMn/Hjh2aN2+eWltbJUn5+fnq7e3VCy+8oMceeyxwjPvvv1+NjY2SpMbGRvX09Ki1tVV79uwJm8Pv98vv9wcenz9/XpI0Njbm9JT0qf9/He/z3zKV87E9v8Q5/CfZnl+aWecQbh9jzOQTjQN+v9/ExMSY119/PWi8rq7O3HfffWH3qaioMHV1dUFjr7/+uomNjTVXrlwxxhiTnZ1tWlpagua0tLSYefPmTZhlw4YNRhIbGxvbtN8GBwcn7WZHK/LR0VGNj48rLS0taDwtLU3Dw8Nh9xkeHg47/+rVqxodHVVGRsaEcyY6pnRt1d7Q0BB4/Omnn+qf//ynUlJS5HK5nJzWTTM2Nqbs7GwNDg4qKSkpKhlulO3nYHt+iXO4Fdwq+Y0xunDhgjIzMyed5/jSiqSQojTGTFqe4eZ/cdzpMd1ut9xud9DYV77ylUlz/7ckJSVZ+Y/382w/B9vzS5zDreBWyJ+cnHzdOY5udqampiomJiZkpTwyMhKyov5Menp62PmxsbFKSUmZdM5ExwQA/D9HRR4fHy+PxyOv1xs07vV6VV5eHnafsrKykPkHDx5USUmJ4uLiJp0z0TEBAJ8z6RX0MPbu3Wvi4uLMzp07zfHjx019fb2ZPXu2OXPmjDHGmOeee85UV1cH5p86dcrcdtttZt26deb48eNm586dJi4uzvz2t78NzPnzn/9sYmJizKZNm8yJEyfMpk2bTGxsrHn77bedxouqy5cvmw0bNpjLly9HO0rEbD8H2/MbwzncCmzL77jIjTFm27ZtJicnx8THx5u77rrL9PT0BJ5buXKlWbJkSdD8Q4cOmeLiYhMfH2/mz59v2traQo75m9/8xixcuNDExcWZvLw809nZGUk0AJhxXMZc7w2KAIBbGZ+1AgCWo8gBwHIUOQBYjiIHAMtR5DfB4cOH9cgjjygzM1Mul0u/+93voh3JkebmZi1atEiJiYmaO3euvve97+mvf/1rtGM50tbWpjvvvDPwl3hlZWV68803ox0rYs3NzXK5XKqvr492lCn72c9+JpfLFbSlp6dHO5ZjZ8+e1ZNPPqmUlBTddttt+va3v62+vr5ox5oURX4TXLp0SUVFRXr55ZejHSUiPT09WrNmjd5++215vV5dvXpVlZWVunTpUrSjTVlWVpY2bdqk3t5e9fb26jvf+Y4effRRffjhh9GO5ti7776r9vZ23XnnndGO4tg3v/lNDQ0NBbYPPvgg2pEc+de//qXFixcrLi5Ob775po4fP64XX3zxlvn4jwlF+/2P040k09XVFe0YN2RkZMRICvr7ABt99atfNa+++mq0Yzhy4cIFs2DBAuP1es2SJUvM008/He1IU7ZhwwZTVFQU7Rg35NlnnzX33ntvtGM4xoocIT77bPfbb789ykkiMz4+rr179+rSpUsqKyuLdhxH1qxZo4ceekjf/e53ox0lIidPnlRmZqZyc3P1wx/+UKdOnYp2JEf279+vkpIS/eAHP9DcuXNVXFysV155JdqxrosiRxBjjBoaGnTvvfeqsLAw2nEc+eCDD/TlL39ZbrdbNTU16urqUkFBQbRjTdnevXv13nvvhf2CFhvcc8892rVrl7q7u/XKK69oeHhY5eXlOnfuXLSjTdmpU6fU1tamBQsWqLu7WzU1Naqrq9OuXbuiHW1y0f6VYLqR5ZdWamtrTU5OznU/yP5W5Pf7zcmTJ827775rnnvuOZOammo+/PDDaMeakoGBATN37lzj8/kCY7ZdWvmiixcvmrS0NPPiiy9GO8qUxcXFmbKysqCxtWvXmtLS0iglmhpW5AhYu3at9u/fr7feektZWVnRjuNYfHy8vv71r6ukpETNzc0qKirSli1boh1rSvr6+jQyMiKPx6PY2FjFxsaqp6dHW7duVWxsrMbHx6Md0bHZs2frW9/6lk6ePBntKFOWkZER8ltcfn7+hN9JfKuI6IslML0YY7R27Vp1dXXp0KFDys3NjXakm8IYE/S9rreypUuXhrzD40c/+pHy8vL07LPPKiYmJkrJIuf3+3XixAlVVFREO8qULV68OOStt3/729+Uk5MTpURTQ5HfBBcvXtTf//73wOPTp0/L5/Pp9ttv17x586KYbGrWrFmj3bt364033lBiYmLgSz6Sk5P1pS99Kcrppmb9+vVatmyZsrOzdeHCBe3du1eHDh3SH/7wh2hHm5LExMSQexKzZ89WSkqKNfcqnnnmGT3yyCOaN2+eRkZG9POf/1xjY2NauXJltKNN2bp161ReXq5f/OIXWr58uf7yl7+ovb1d7e3t0Y42uWhf25kO3nrrrbBfmLpy5cpoR5uScNklmV/96lfRjjZlP/7xjwMfrTxnzhyzdOlSc/DgwWjHuiG2XSOvqqoyGRkZJi4uzmRmZprvf//71tyj+Lzf//73prCw0LjdbpOXl2fa29ujHem6+BhbALAcNzsBwHIUOQBYjiIHAMtR5ABgOYocACxHkQOA5ShyALAcRQ4AlqPIAcByFDkAWI4iBwDL/R8R4CGXVPFLmwAAAABJRU5ErkJggg==\n",
+      "text/plain": [
+       "<Figure size 400x200 with 1 Axes>"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "dice = np.array([1, 2, 3, 4, 5, 6])\n",
+    "\n",
+    "n = 5000\n",
+    "\n",
+    "mean = 0\n",
+    "\n",
+    "freq = np.zeros(6)\n",
+    "\n",
+    "for i in range(n):\n",
+    "    d = np.random.choice(dice, p=[1/6, 1/6, 1/6, 1/6, 1/6, 1/6])\n",
+    "    \n",
+    "    mean += d\n",
+    "    \n",
+    "    freq[d - 1] += 1\n",
+    "\n",
+    "mean = mean / n\n",
+    "\n",
+    "freq = freq / n\n",
+    "\n",
+    "print(f\"mean = {mean}\")\n",
+    "print(f\"freq = {freq}\")\n",
+    "\n",
+    "plt.figure(figsize=(4, 2))\n",
+    "\n",
+    "plt.bar(dice, freq)\n",
+    "\n",
+    "plt.show()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 114,
+   "id": "724919ca",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "mean = 2.0774\n",
+      "freq = [0.4052 0.3988 0.053  0.0466 0.0492 0.0472]\n"
+     ]
+    },
+    {
+     "data": {
+      "image/png": "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\n",
+      "text/plain": [
+       "<Figure size 400x200 with 1 Axes>"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "dice = np.array([1, 2, 3, 4, 5, 6])\n",
+    "\n",
+    "n = 5000\n",
+    "\n",
+    "mean = 0\n",
+    "\n",
+    "freq = np.zeros(6)\n",
+    "\n",
+    "for i in range(n):\n",
+    "    d = np.random.choice(dice, p=[0.4, 0.4, 0.05, 0.05, 0.05, 0.05])\n",
+    "    \n",
+    "    mean += d\n",
+    "    \n",
+    "    freq[d - 1] += 1\n",
+    "\n",
+    "mean = mean / n\n",
+    "\n",
+    "freq = freq / n\n",
+    "\n",
+    "print(f\"mean = {mean}\")\n",
+    "print(f\"freq = {freq}\")\n",
+    "\n",
+    "plt.figure(figsize=(4, 2))\n",
+    "\n",
+    "plt.bar(dice, freq)\n",
+    "\n",
+    "plt.show()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 120,
+   "id": "6b800271",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "E1(dice) = Sum(p1_i * dice_i) = 3.5\n",
+      "Var1(dice) = Sum(p1_i * (dice_i - E1(dice)) ** 2) = 12.249999999999998\n",
+      "sigma1(dice) = sqrt(Var1(dice)) = 3.4999999999999996\n",
+      "---\n",
+      "E2(dice) = Sum(p2_i * dice_i) = 2.1\n",
+      "Var2(dice) = Sum(p2_i * (dice_i - E2(dice)) ** 2) = 4.410000000000001\n",
+      "sigma2(dice) = sqrt(Var2(dice)) = 2.1\n"
+     ]
+    }
+   ],
+   "source": [
+    "dice = np.array([1, 2, 3, 4, 5, 6])\n",
+    "\n",
+    "p1 = np.array([1/6, 1/6, 1/6, 1/6, 1/6, 1/6])\n",
+    "\n",
+    "p2 = np.array([0.4, 0.4, 0.05, 0.05, 0.05, 0.05])\n",
+    "\n",
+    "print(f\"E1(dice) = Sum(p1_i * dice_i) = {sum(p1 * dice)}\")\n",
+    "print(f\"Var1(dice) = Sum(p1_i * (dice_i - E1(dice)) ** 2) = {sum(p1 * (sum(p1 * dice)) ** 2)}\")\n",
+    "print(f\"sigma1(dice) = sqrt(Var1(dice)) = {np.sqrt(sum(p1 * (sum(p1 * dice)) ** 2))}\")\n",
+    "print(\"---\")\n",
+    "print(f\"E2(dice) = Sum(p2_i * dice_i) = {sum(p2 * dice)}\")\n",
+    "print(f\"Var2(dice) = Sum(p2_i * (dice_i - E2(dice)) ** 2) = {sum(p2 * (sum(p2 * dice)) ** 2)}\")\n",
+    "print(f\"sigma2(dice) = sqrt(Var2(dice)) = {np.sqrt(sum(p2 * (sum(p2 * dice)) ** 2))}\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "edf1f63a",
+   "metadata": {},
+   "source": [
+    "---"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "57c33cb6",
+   "metadata": {},
+   "source": [
+    "### Continuous Random Variables\n",
+    "\n",
+    "* In some cases, outcomes cannot be listed, e.g. measuring heights or weights of people\n",
+    "* In such cases the random variables we work with are called **continuous random variables**\n",
+    "* The role of the pmf is taken by a **probability density function (pdf)**\n",
+    "* The pdf, say $f(x)$, has a property that\n",
+    "\\begin{equation} \\int_{-\\infty}^{+\\infty} f(x)\\, dx = 1\\end{equation}\n",
+    "* Let $X$ be a continuous random variable and let $[a, b]$ be an interval of possible outcomes. We define the probability that $X \\in [a, b]$, or $a \\leqslant X \\leqslant b$, by\n",
+    "\\begin{equation}\n",
+    "P(X \\in [a, b]) = P(a \\leqslant X \\leqslant b) = \\int_a^b f(x)\\, dx\n",
+    "\\end{equation}\n",
+    "\n",
+    "### Example 4\n",
+    "Let $X$ be a random variable such that $X \\in [0, 1]$, and the pdf is given by\n",
+    "\\begin{equation}f(x) = \\frac{15}{2} x^2 (1-x^2)\\end{equation}\n",
+    "* Show that that $f(x)$ is really a pdf, i.e. that $P(0 \\leqslant X \\leqslant 1) = 1$\n",
+    "* Find the probability that $X \\in [0.5, 0.8]$"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "639a818e",
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "19575f7b",
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d707f938",
+   "metadata": {},
+   "source": [
+    "---"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "70d7978c",
+   "metadata": {},
+   "source": [
+    "### Expected Value, Variance and Standard Deviation for continuous variables\n",
+    "* For a random variable $X$ with a pdf $f(x)$, we define the expected value$E(X)$, the variance $Var(X)$ and the standard deviation $\\sigma_X$ as\n",
+    "\\begin{equation}\n",
+    "\\begin{array}{rcl}\n",
+    "E(X) &=& \\displaystyle\\int_{-\\infty}^{+\\infty} x \\cdot f(x)\\, dx\\\\\n",
+    "Var(X) &=& \\displaystyle\\int_{-\\infty}^{+\\infty} \\Big(x - E(X) \\Big)^2 \\cdot f(x)\\, dx\\\\\n",
+    "\\sigma_X &=& \\sqrt{Var(X)}\n",
+    "\\end{array}\n",
+    "\\end{equation}\n",
+    "\n",
+    "**Notes:**\n",
+    "* The $E(X)$ and $Var(X)$ exists only if the integral returns a finite value\n",
+    "* Instead of infinite boundaries, we will be using the smallest and largest value that the pdf can take\n",
+    "\n",
+    "### Example 5\n",
+    "For the random variable $X$ given in **Example 4** calculate the expectation, the variance and the standard deviation"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "cdf4535b",
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "38d6f0be",
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "markdown",
+   "id": "0d9eff5c",
+   "metadata": {},
+   "source": [
+    "---"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "2aa39e74",
+   "metadata": {},
+   "source": [
+    "### Practice\n",
+    "A continuous random variable $X$ has a pdf $f(x)$ given by\n",
+    "\\begin{equation}\n",
+    "f(x) = 6(x - x^2)\n",
+    "\\end{equation}\n",
+    "for $x \\in [0, 1]$. Calculate:\n",
+    "\n",
+    "a) $P(0.2 \\leqslant X \\leqslant 0.8)$\n",
+    "\n",
+    "b) $P(X \\leqslant 0.7)$\n",
+    "\n",
+    "c) $P(X \\geqslant 0.9)$\n",
+    "\n",
+    "d) $\\sigma_X$"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "71d6b273",
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3 (ipykernel)",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.10.9"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
